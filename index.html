@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ds todo</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .back_link_warp {
+            position: fixed;
+            background-color: white;
+            width: 100%;
+        }
+
+        .back_link {
+            margin: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            background: #f3f0f0;
+            padding: 5px;
+            box-shadow: 0px 5px 3px #d4d3d3;
+        }
+    </style>
+</head>
+
+<body onhashchange="load_hash_page()" style="position: absolute;">
+    <div class="back_link_warp">
+        <div class="back_link" onclick="back_to_main()">
+            &lt; 返回目录
+        </div>
+    </div>
+    <div style="margin-top: 50px;">
+        <div id="pv" style="margin-left: 10px;"></div>
+    </div>
+
+    <!-- 插件区 -->
+    <script src="dist/marked.min.js"></script>
+    <script src="dist/jquery.min.js"></script>
+    <script>
+        $(function () {
+            load_hash_page();
+        });
+
+        function back_to_main() {
+            load_page("main");
+        }
+
+        function load_page(page_name) {
+            if (page_name == "main") {
+                $("div[class=back_link_warp]").hide();
+            } else {
+                $("div[class=back_link_warp]").show();
+            }
+
+            $.get(page_name + '.md?t=' + new Date().getTime().toString(), function (data) {
+                if (data) {
+                    var title = data.substr(0, data.indexOf("\n")).replace("#", "");
+                    $("title").text(title);
+                    var html = marked.parse(data);
+                    $("#pv").html(html);
+                }
+            });
+
+            window.location.hash = page_name;
+        }
+
+        function load_hash_page() {
+            var page_name = window.location.hash;
+            if (page_name) {
+                page_name = page_name.replace("#", "");
+            } else {
+                page_name = "main";
+            }
+            load_page(page_name);
+        }
+    </script>
+</body>
+
+</html>
