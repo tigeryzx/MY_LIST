@@ -9,6 +9,8 @@
     <style>
         body {
             margin: 0;
+            height: 100%;
+            width: 100%;
         }
 
         .back_link_warp {
@@ -25,17 +27,33 @@
             padding: 5px;
             box-shadow: 0px 5px 3px #d4d3d3;
         }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 40%;
+            width: 200px;
+        }
+
+        .page_title {
+            display: inline-block;
+            float: right;
+        }
     </style>
 </head>
 
 <body onhashchange="load_hash_page()" style="position: absolute;">
-    <div class="back_link_warp">
+    <div class="back_link_warp" style="display: none;">
         <div class="back_link" onclick="back_to_main()">
-            &lt; 返回目录
+            <span>&lt; 返回目录</span>
+            <span class="page_title"></span>
         </div>
     </div>
     <div style="margin-top: 50px;">
         <div id="pv" style="margin-left: 10px;"></div>
+    </div>
+    <div class="loading" style="display: none;">
+        <span>加载中...</span>
     </div>
 
     <!-- 插件区 -->
@@ -51,19 +69,28 @@
         }
 
         function load_page(page_name) {
-            if (page_name == "main") {
-                $("div[class=back_link_warp]").hide();
-            } else {
-                $("div[class=back_link_warp]").show();
-            }
+
+            $("#pv").hide();
+            $("div[class=loading]").show();
+            $("div[class=back_link_warp]").hide();
 
             $.get(page_name + '.md?t=' + new Date().getTime().toString(), function (data) {
                 if (data) {
                     var title = data.substr(0, data.indexOf("\n")).replace("#", "");
                     $("title").text(title);
+                    $("span[class=page_title]").html(title);
                     var html = marked.parse(data);
                     $("#pv").html(html);
                 }
+
+                if (page_name == "main") {
+                    $("div[class=back_link_warp]").hide();
+                } else {
+                    $("div[class=back_link_warp]").show();
+                }
+
+                $("#pv").show();
+                $("div[class=loading]").hide();
             });
 
             window.location.hash = page_name;
